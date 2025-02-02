@@ -1,0 +1,5 @@
+argparse
+pyyaml
+requests
+semver
+regex

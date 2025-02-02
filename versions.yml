@@ -1,0 +1,53 @@
+# template_example:
+  # config: # Configuration to get the version used by the project
+    ##############
+    ### url : file within git that can be parsed with pattern
+    # url: https://raw.githubusercontent.com/nginx/unit/refs/heads/master/version
+    # pattern: "NXT_VERSION="
+    ##############
+    ### file : config file that can be parsed with pattern
+    # file : "local.cfg"
+    # pattern: "ansible="
+    ##############
+    ### version : this file serves as version control
+    # version: 11.1.0
+  # source:
+    # url: https://api.github.com/repos/ansible-community/ansible-build-data/tags
+    # username: "username" # user to login to url
+    # password: "env:TEST_MDP" # password to login to url
+ansible:
+  config:
+    # Either version, url or file
+    ##############
+    ### url : file within git that can be parsed with pattern
+    # url: https://raw.githubusercontent.com/nginx/unit/refs/heads/master/version
+    # pattern: "NXT_VERSION="
+    ##############
+    ### file : config file that can be parsed with pattern
+    file : "local.cfg"
+    pattern: "ansible="
+    ##############
+    ### version : this file serves as version control
+    # version: 11.1.0
+  source:
+    url: https://api.github.com/repos/ansible-community/ansible-build-data/tags
+    # username: "username"
+    # password: "env:TEST_MDP"
+# terraform:
+#   version: v1.5.3
+#   source:
+#     url: https://api.github.com/repos/hashicorp/terraform/tags
+# helm:
+#   version: v3.17.0
+#   source:
+#     url: https://api.github.com/repos/helm/helm/tags
+# cortex:
+#   version: 3.1.8
+#   source:
+#     url: https://api.github.com/repos/TheHive-Project/cortex/tags
+# MISP:
+#   version: v2.5.6
+#   source:
+#     url: https://api.github.com/repos/MISP/MISP/tags
+
+

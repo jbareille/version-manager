@@ -3,6 +3,8 @@ import yaml
 import requests
 from semver import Version, compare
 import re
+import os
+from sys import exit
 
 def main() -> None:
 
@@ -107,44 +109,67 @@ def requests_function(app_source):
     """Function to requests http pages
 
     Parameters:
-    app_source:configuration to get the information
+    app_source: configuration to get the information
     """
     if "username" in app_source and "password" in app_source:
-        x = requests.get(app_source['url'], auth=(app_source['username'], app_source['password']))
+        password = get_creds_from_config(app_source['password'])
+        username = get_creds_from_config(app_source['username'])
+        x = requests.get(app_source['url'], auth=(username, password))
     elif not "username" in app_source and not "password" in app_source:
         x = requests.get(app_source['url'])
     else:
         print("Can get both username and password variable, shift to anonmyous mode")
     return x
 
+def get_creds_from_config(source_pass):
+    """Get variables as username or password
+
+    Parameters:
+    source_pass: able to get variable from direct or env var (string)
+    """
+    if source_pass.startswith("env:"):
+        env_var_pass = source_pass.split("env:")[1].rstrip()
+        if env_var_pass in os.environ:
+            return os.environ[env_var_pass]
+        else:
+            print("ERROR: ", env_var_pass, " does not exist")
+    return source_pass
+
 def get_current_version(app_config):
     print('function: get_current_version, status: start')
-    # print(app_config)
     # Either version, url or file
     if ("version" in app_config and "url" in app_config) or (
         "version" in app_config and "file" in app_config) or (
         "url" in app_config and "file" in app_config):
 
         print("ERROR: parameters incompatible")
+    elif "version" not in app_config and "url" not in app_config and "file" not in app_config:
+        print("ERROR: missing parameters, required version/app/url")
 
     if "version" in app_config:
         return app_config.version
     # version : this file serves as version control
     if "url" in app_config:
-        x = requests.get(app_config['url'])
-        config_version = version_from_pattern(app_config['pattern'], x.text.splitlines())
-        return config_version
-        # for line in x.text.splitlines():
-        #     if re.search(app_config['pattern'], line):
-        #         return line.split(app_config['pattern'])[1].rstrip()
+        try:
+            x = requests.get(app_config['url'])
+            config_version = version_from_pattern(app_config['pattern'], x.text.splitlines())
+            return config_version
+        except KeyError:
+            print("ERROR: pattern param is mandatory with url")
+        except:
+            print('ERROR: LOL, cpt dans url')
+
     # url : file within git
     if "file" in app_config:
-        with open(app_config['file'], "r") as file:
-            config_version = version_from_pattern(app_config['pattern'], file)
-            return config_version
-            # for line in file:
-            #     if re.search(app_config['pattern'], line):
-            #         return line.split(app_config['pattern'])[1].rstrip()
+        try:
+            with open(app_config['file'], "r") as file:
+                config_version = version_from_pattern(app_config['pattern'], file)
+                return config_version
+        except KeyError:
+            print("ERROR: pattern param is mandatory with file")
+        except:
+            print('ERROR: LOL, cpt dans file')
+
 
 def version_from_pattern(pattern, lines):
     for line in lines:

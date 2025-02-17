@@ -14,9 +14,8 @@ ansible:
     # version: 11.1.0
   source:
     url: https://api.github.com/repos/ansible-community/ansible-build-data/tags
-    # url: https://api.com/repos/ansible-community/ansible-build-data/tags
-    username: "moi"
-    password: "toi"
+    # username: "username"
+    # password: "env:TEST_MDP"
 # terraform:
 #   version: v1.5.3
 #   source:

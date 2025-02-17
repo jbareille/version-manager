@@ -1,3 +1,20 @@
+# template_example:
+  # config: # Configuration to get the version used by the project
+    ##############
+    ### url : file within git that can be parsed with pattern
+    # url: https://raw.githubusercontent.com/nginx/unit/refs/heads/master/version
+    # pattern: "NXT_VERSION="
+    ##############
+    ### file : config file that can be parsed with pattern
+    # file : "local.cfg"
+    # pattern: "ansible="
+    ##############
+    ### version : this file serves as version control
+    # version: 11.1.0
+  # source:
+    # url: https://api.github.com/repos/ansible-community/ansible-build-data/tags
+    # username: "username" # user to login to url
+    # password: "env:TEST_MDP" # password to login to url
 ansible:
   config:
     # Either version, url or file

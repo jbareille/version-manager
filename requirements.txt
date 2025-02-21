@@ -3,3 +3,4 @@ pyyaml
 requests
 semver
 regex
+logging

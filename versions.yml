@@ -24,8 +24,8 @@ ansible:
     pattern: "NXT_VERSION="
     ##############
     ### file : config file that can be parsed with pattern
-    # file : "local.cfg"
-    # pattern: "ansible="
+    file : "local.cfg"
+    pattern: "ansible="
     ##############
     ### version : this file serves as version control
     # version: 11.1.0

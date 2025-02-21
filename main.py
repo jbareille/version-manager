@@ -4,7 +4,7 @@ import requests
 from semver import Version, compare
 import re
 import os
-from sys import exit
+import logging
 
 def main() -> None:
 
@@ -13,11 +13,11 @@ def main() -> None:
                         prog='version monitoring tool',
                         description='Check if new version of your tools are available')
 
-    parser.add_argument('-o', '--hide_ok', type=bool, default=False, help='Hide apps that up to date [bool]')
+    parser.add_argument('-o', '--output_file', type=bool, default=False, help='Hide apps that up to date [bool]')
     parser.add_argument('-c', '--hide_curr', type=bool, default=False, help='Hide current version of apps [bool]')
 
     args = parser.parse_args()
-    hide_ok = args.hide_ok
+    output_file = args.output_file
     hide_curr = args.hide_curr
 
     with open("versions.yml", "r") as versions:
@@ -31,7 +31,7 @@ def main() -> None:
                 source_conf = versions_yml[item]['source']
                 # sourcing_with_creds(source_conf)
                 available_version = get_latest_tag(source_conf)
-                format_result(item, current_version, available_version, hide_curr, hide_ok)
+                format_result(item, current_version, available_version, hide_curr)
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -49,7 +49,7 @@ def get_latest_tag(source_config, full = False):
     try:
         x = requests_function(source_config)
     except:
-        print("ERROR: http requests")
+        logging.error("http requests")
         return "ERROR"
 
     for item in x.json():
@@ -80,11 +80,11 @@ def newer_version(current, available):
         if compare(str(current).replace('v',''), str(available).replace('v','')) == -1:
             return True
     except ValueError:
-        print("Version doivent être au format X.X.X")
+        logging.error("Version doivent être au format X.X.X")
     except:
-        print('LOL, cpt')
+        logging.error('LOL, cpt')
 
-def format_result(app, curr, avail, hide_curr = False, hide_ok = False):
+def format_result(app, curr, avail, hide_curr = False):
     """Print function
 
     Parameters:
@@ -92,14 +92,13 @@ def format_result(app, curr, avail, hide_curr = False, hide_ok = False):
     curr:current tag of the application
     avail:latest available tag of the application
     hide_curr:
-    hide_ok:
     """
     if newer_version(curr, avail):
         status = "OUTDATED"
     else:
         status = "ok"
 
-    if not (status == "ok" and hide_ok):
+    if not (status == "ok"):
         if hide_curr:
             print('{"app": "%s", "latest": "%s", "status": "%s"}' % (app, avail, status))
         else:
@@ -118,7 +117,7 @@ def requests_function(app_source):
     elif not "username" in app_source and not "password" in app_source:
         x = requests.get(app_source['url'])
     else:
-        print("Can get both username and password variable, shift to anonmyous mode")
+        logging.info("Can get both username and password variable, shift to anonmyous mode")
     return x
 
 def get_creds_from_config(source_pass):
@@ -132,19 +131,19 @@ def get_creds_from_config(source_pass):
         if env_var_pass in os.environ:
             return os.environ[env_var_pass]
         else:
-            print("ERROR: ", env_var_pass, " does not exist")
+            logging.error(env_var_pass, " does not exist")
     return source_pass
 
 def get_current_version(app_config):
-    print('function: get_current_version, status: start')
+    logging.debug('function: get_current_version, status: start')
     # Either version, url or file
     if ("version" in app_config and "url" in app_config) or (
         "version" in app_config and "file" in app_config) or (
         "url" in app_config and "file" in app_config):
 
-        print("ERROR: parameters incompatible")
+        logging.error("parameters incompatible")
     elif "version" not in app_config and "url" not in app_config and "file" not in app_config:
-        print("ERROR: missing parameters, required version/app/url")
+        logging.error("missing parameters, required version/app/url")
 
     if "version" in app_config:
         return app_config.version
@@ -155,9 +154,9 @@ def get_current_version(app_config):
             config_version = version_from_pattern(app_config['pattern'], x.text.splitlines())
             return config_version
         except KeyError:
-            print("ERROR: pattern param is mandatory with url")
+            logging.error("pattern param is mandatory with url")
         except:
-            print('ERROR: LOL, cpt dans url')
+            logging.error('LOL, cpt dans url')
 
     # url : file within git
     if "file" in app_config:
@@ -166,9 +165,9 @@ def get_current_version(app_config):
                 config_version = version_from_pattern(app_config['pattern'], file)
                 return config_version
         except KeyError:
-            print("ERROR: pattern param is mandatory with file")
+            logging.error("pattern param is mandatory with file")
         except:
-            print('ERROR: LOL, cpt dans file')
+            logging.error('LOL, cpt dans file')
 
 
 def version_from_pattern(pattern, lines):

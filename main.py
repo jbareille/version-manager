@@ -20,6 +20,8 @@ def main() -> None:
     output_file = args.output_file
     hide_curr = args.hide_curr
 
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
     with open("versions.yml", "r") as versions:
         try:
             versions_yml = yaml.load(versions, Loader=yaml.FullLoader)
